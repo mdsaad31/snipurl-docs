@@ -1,0 +1,150 @@
+# API Reference Overview
+
+The Snip URL API is organized around REST principles. It uses standard HTTP methods, returns JSON-encoded responses, and uses standard HTTP response codes.
+
+## Base URL
+
+```
+https://snipurl.click/api/v1
+```
+
+All endpoints described in this documentation are relative to this base URL.
+
+## Versioning
+
+The API is versioned via the URL path. The current version is **v1**. When breaking changes are introduced, a new version (v2, v3, etc.) will be released. Existing versions will continue to work for a deprecation period.
+
+## Authentication
+
+All API requests require a valid API key passed in the `Authorization` header:
+
+```
+Authorization: Bearer snip_live_your_key_here
+```
+
+See [Authentication](/getting-started/authentication) for details on creating and managing keys.
+
+## HTTP Methods
+
+| Method | Usage |
+|--------|-------|
+| `GET` | Retrieve resources |
+| `POST` | Create new resources |
+| `PATCH` | Update existing resources (partial update) |
+| `DELETE` | Delete resources |
+
+## Request Format
+
+- Request bodies must be JSON with `Content-Type: application/json`
+- Query parameters are used for filtering and pagination on GET requests
+- Path parameters are used for identifying specific resources (e.g., `/links/:id`)
+
+## Response Format
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+For paginated endpoints, a `meta` object is included:
+
+```json
+{
+  "success": true,
+  "data": [ ... ],
+  "meta": {
+    "page": 1,
+    "per_page": 20,
+    "total": 142,
+    "total_pages": 8
+  }
+}
+```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable description of the error",
+    "details": { ... }
+  }
+}
+```
+
+## Common HTTP Status Codes
+
+| Code | Meaning |
+|------|---------|
+| `200` | Success |
+| `201` | Created (resource was successfully created) |
+| `400` | Bad Request (invalid parameters or body) |
+| `401` | Unauthorized (missing or invalid API key) |
+| `403` | Forbidden (insufficient permissions or limits reached) |
+| `404` | Not Found (resource doesn't exist or doesn't belong to you) |
+| `409` | Conflict (e.g., alias already taken) |
+| `429` | Too Many Requests (rate limit exceeded) |
+| `500` | Internal Server Error |
+
+## Pagination
+
+List endpoints support pagination via query parameters:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | integer | 1 | Page number (1-based) |
+| `per_page` | integer | 20 | Items per page (max 100) |
+
+## Date Formats
+
+All dates in requests and responses use **ISO 8601** format with timezone:
+
+```
+2025-06-24T10:00:00.000Z
+```
+
+For date range filters in analytics, use ISO 8601 date strings:
+
+```
+?start=2025-01-01T00:00:00Z&end=2025-06-24T23:59:59Z
+```
+
+## Available Endpoints
+
+### Links
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | [`/links`](/api-reference/links/create) | Create a short link |
+| `GET` | [`/links`](/api-reference/links/list) | List your links |
+| `GET` | [`/links/:id`](/api-reference/links/get) | Get a specific link |
+| `PATCH` | [`/links/:id`](/api-reference/links/update) | Update a link |
+| `DELETE` | [`/links/:id`](/api-reference/links/delete) | Delete a link |
+| `POST` | [`/links/bulk`](/api-reference/links/bulk-create) | Bulk create links |
+| `DELETE` | [`/links/bulk`](/api-reference/links/bulk-delete) | Bulk delete links |
+
+### Analytics
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | [`/analytics/:link_id`](/api-reference/analytics/link-stats) | Get analytics for a link |
+| `GET` | [`/analytics/summary`](/api-reference/analytics/summary) | Get aggregated analytics |
+
+### QR Codes
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | [`/qr/:short_code`](/api-reference/qr-codes/generate) | Generate a QR code |
+
+### Account
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | [`/account`](/api-reference/account/info) | Get account info |
+| `GET` | [`/account/usage`](/api-reference/account/usage) | Get API usage info |

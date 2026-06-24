@@ -1,0 +1,162 @@
+# Link Analytics
+
+Get detailed click analytics for a specific link, including time series, geographic data, device breakdown, and referrer information.
+
+```
+GET /api/v1/analytics/:link_id
+```
+
+## Authentication
+
+Required.
+
+## Path Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `link_id` | string (UUID) | The link's unique identifier |
+
+## Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `start` | string | No | Start date (ISO 8601). Filters clicks from this date onward |
+| `end` | string | No | End date (ISO 8601). Filters clicks up to this date |
+
+Both `start` and `end` must be provided together for date filtering to apply.
+
+## Response
+
+Returns comprehensive analytics data broken down by multiple dimensions.
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `link_id` | string | The link ID |
+| `short_code` | string | The link's short code |
+| `total_clicks` | number | Total click count in the period |
+| `time_series` | array | Clicks per day |
+| `referrers` | array | Top 10 referrer sources |
+| `countries` | array | Top 10 countries by clicks |
+| `cities` | array | Top 10 cities by clicks |
+| `devices` | array | Device type breakdown (mobile, tablet, desktop) |
+| `browsers` | array | Top 10 browsers |
+| `os` | array | Top 10 operating systems |
+
+## Examples
+
+### Full Analytics
+
+```bash
+curl "https://snipurl.click/api/v1/analytics/550e8400-e29b-41d4-a716-446655440000" \
+  -H "Authorization: Bearer snip_live_your_key_here"
+```
+
+### With Date Range
+
+```bash
+curl "https://snipurl.click/api/v1/analytics/550e8400-e29b-41d4-a716-446655440000?start=2025-06-01T00:00:00Z&end=2025-06-24T23:59:59Z" \
+  -H "Authorization: Bearer snip_live_your_key_here"
+```
+
+```javascript
+const linkId = '550e8400-e29b-41d4-a716-446655440000';
+const start = '2025-06-01T00:00:00Z';
+const end = '2025-06-24T23:59:59Z';
+
+const response = await fetch(
+  `https://snipurl.click/api/v1/analytics/${linkId}?start=${start}&end=${end}`,
+  { headers: { 'Authorization': 'Bearer snip_live_your_key_here' } }
+);
+
+const { data } = await response.json();
+console.log(`Total clicks: ${data.total_clicks}`);
+console.log(`Top country: ${data.countries[0]?.country}`);
+```
+
+```python
+import requests
+
+link_id = '550e8400-e29b-41d4-a716-446655440000'
+params = {
+    'start': '2025-06-01T00:00:00Z',
+    'end': '2025-06-24T23:59:59Z',
+}
+
+response = requests.get(
+    f'https://snipurl.click/api/v1/analytics/{link_id}',
+    headers={'Authorization': 'Bearer snip_live_your_key_here'},
+    params=params,
+)
+
+data = response.json()['data']
+print(f"Total clicks: {data['total_clicks']}")
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "link_id": "550e8400-e29b-41d4-a716-446655440000",
+    "short_code": "a8Kx2m",
+    "total_clicks": 1523,
+    "time_series": [
+      {"date": "2025-06-01", "count": 45},
+      {"date": "2025-06-02", "count": 62},
+      {"date": "2025-06-03", "count": 58},
+      {"date": "2025-06-04", "count": 71}
+    ],
+    "referrers": [
+      {"referrer": "https://twitter.com", "count": 342},
+      {"referrer": "https://google.com", "count": 215},
+      {"referrer": null, "count": 189},
+      {"referrer": "https://reddit.com", "count": 87}
+    ],
+    "countries": [
+      {"country": "US", "count": 621},
+      {"country": "GB", "count": 198},
+      {"country": "DE", "count": 142},
+      {"country": "IN", "count": 98}
+    ],
+    "cities": [
+      {"city": "New York", "country": "US", "count": 89},
+      {"city": "London", "country": "GB", "count": 76},
+      {"city": "San Francisco", "country": "US", "count": 54}
+    ],
+    "devices": [
+      {"device_type": "desktop", "count": 845},
+      {"device_type": "mobile", "count": 598},
+      {"device_type": "tablet", "count": 80}
+    ],
+    "browsers": [
+      {"browser": "Chrome", "count": 712},
+      {"browser": "Safari", "count": 389},
+      {"browser": "Firefox", "count": 201},
+      {"browser": "Edge", "count": 142}
+    ],
+    "os": [
+      {"os": "Windows", "count": 534},
+      {"os": "macOS", "count": 312},
+      {"os": "iOS", "count": 298},
+      {"os": "Android", "count": 287},
+      {"os": "Linux", "count": 92}
+    ]
+  }
+}
+```
+
+## Notes
+
+- A `null` referrer means direct traffic (no referrer header)
+- Country codes are 2-letter ISO 3166-1 alpha-2 (e.g., "US", "GB", "DE")
+- Time series covers each day in the selected range that has at least 1 click
+- Results are limited to top 10 per dimension to keep response sizes manageable
+
+## Error Responses
+
+| Status | Code | Description |
+|--------|------|-------------|
+| 404 | `NOT_FOUND` | Link not found or doesn't belong to you |

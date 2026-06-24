@@ -1,0 +1,49 @@
+# Changelog
+
+Track changes, new features, and improvements to the Snip URL API.
+
+## June 2025
+
+### v1.0.0 — Initial Release (June 25, 2025)
+
+The first public release of the Snip URL API.
+
+**Features:**
+
+- **Links API** — Full CRUD operations for short links
+  - Create links with custom aliases, passwords, and expiration
+  - List, get, update, and delete links
+  - Bulk create (up to 50) and bulk delete operations
+- **Analytics API** — Detailed click analytics
+  - Per-link analytics with time series, geo data, device/browser/OS breakdown
+  - Aggregated summary across all links with top performers
+- **QR Code API** — Dynamic QR code generation
+  - PNG and SVG output formats
+  - Customizable colors, size, error correction, and margin
+  - Transparent background support
+- **Account API** — Account and usage information
+  - Account info with link counts and limits
+  - API key usage and rate limit status
+- **Authentication** — Secure API key system
+  - SHA-256 hashed key storage
+  - Key creation with optional expiration
+  - Instant revocation
+- **Rate Limiting** — Fair usage protection
+  - 60 requests per minute per key
+  - 1,000 requests per hour per key
+  - Standard rate limit headers on every response
+
+---
+
+## Versioning Policy
+
+The Snip URL API uses URL-based versioning (`/api/v1/`). We follow these principles:
+
+- **Backwards-compatible changes** (new fields, new endpoints) are added to the current version without a version bump
+- **Breaking changes** (field removals, type changes, behavior changes) result in a new version
+- **Deprecated versions** receive at least 6 months notice before removal
+
+## Stay Updated
+
+- Watch our [GitHub repository](https://github.com/mdsaad31/SnipURL) for release notifications
+- Check the `X-API-Version` header in responses for the current version

@@ -1,0 +1,139 @@
+# Quick Start
+
+Get up and running with the Snip URL API in under 5 minutes.
+
+## Prerequisites
+
+- A Snip URL account ([sign up here](https://snipurl.click/sign-up))
+- An API key (created from your [dashboard](https://snipurl.click/dashboard/api-keys))
+
+## Step 1: Get Your API Key
+
+1. Log into your [Snip URL dashboard](https://snipurl.click/dashboard)
+2. Navigate to **API Keys** in the sidebar
+3. Click **Create Key**
+4. Give your key a name (e.g., "My App")
+5. Copy the key immediately — it won't be shown again
+
+Your key will look like: `snip_live_a8Kx2mNq9pR4sT7wB1cD3eF5gH6jL0v`
+
+## Step 2: Make Your First Request
+
+### Using curl
+
+```bash
+curl https://snipurl.click/api/v1/account \
+  -H "Authorization: Bearer snip_live_your_key_here"
+```
+
+### Using JavaScript (Node.js / Browser)
+
+```javascript
+const response = await fetch('https://snipurl.click/api/v1/account', {
+  headers: {
+    'Authorization': 'Bearer snip_live_your_key_here',
+  },
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+### Using Python
+
+```python
+import requests
+
+headers = {
+    'Authorization': 'Bearer snip_live_your_key_here',
+}
+
+response = requests.get('https://snipurl.click/api/v1/account', headers=headers)
+data = response.json()
+print(data)
+```
+
+## Step 3: Create Your First Short Link
+
+```bash
+curl -X POST https://snipurl.click/api/v1/links \
+  -H "Authorization: Bearer snip_live_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://github.com/mdsaad31/SnipURL",
+    "custom_alias": "my-repo",
+    "title": "My GitHub Repository"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "short_code": "my-repo",
+    "short_url": "https://snipurl.click/my-repo",
+    "original_url": "https://github.com/mdsaad31/SnipURL",
+    "title": "My GitHub Repository",
+    "is_active": true,
+    "has_password": false,
+    "expires_at": null,
+    "clicks_count": 0,
+    "analytics_public": false,
+    "created_at": "2025-06-24T10:00:00.000Z",
+    "updated_at": "2025-06-24T10:00:00.000Z"
+  }
+}
+```
+
+Your short link is now live at `https://snipurl.click/my-repo`!
+
+## Step 4: Check Analytics
+
+After your link receives some clicks:
+
+```bash
+curl https://snipurl.click/api/v1/analytics/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Authorization: Bearer snip_live_your_key_here"
+```
+
+## Base URL
+
+All API requests should be made to:
+
+```
+https://snipurl.click/api/v1
+```
+
+## Response Format
+
+Every response returns JSON with this structure:
+
+**Success:**
+```json
+{
+  "success": true,
+  "data": { ... },
+  "meta": { ... }  // Optional, included on paginated responses
+}
+```
+
+**Error:**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable description",
+    "details": { ... }  // Optional, for validation errors
+  }
+}
+```
+
+## Next Steps
+
+- [Authentication](/getting-started/authentication) — Learn about API key management
+- [Rate Limits](/getting-started/rate-limits) — Understand request limits
+- [API Reference](/api-reference) — Explore all available endpoints

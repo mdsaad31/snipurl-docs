@@ -1,0 +1,73 @@
+# Delete Link
+
+Permanently delete a link and all its associated analytics data.
+
+```
+DELETE /api/v1/links/:id
+```
+
+## Authentication
+
+Required.
+
+## Path Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `id` | string (UUID) | The link's unique identifier |
+
+## Response
+
+Returns confirmation of deletion.
+
+## Examples
+
+```bash
+curl -X DELETE https://snipurl.click/api/v1/links/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Authorization: Bearer snip_live_your_key_here"
+```
+
+```javascript
+const response = await fetch(
+  `https://snipurl.click/api/v1/links/${linkId}`,
+  {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer snip_live_your_key_here' },
+  }
+);
+const { data } = await response.json();
+console.log(data.deleted); // true
+```
+
+```python
+import requests
+
+response = requests.delete(
+    f'https://snipurl.click/api/v1/links/{link_id}',
+    headers={'Authorization': 'Bearer snip_live_your_key_here'},
+)
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "deleted": true
+  }
+}
+```
+
+## Important Notes
+
+- This action is **irreversible**
+- All click analytics data for this link will be permanently deleted (cascade)
+- The short code will become available for reuse
+- Any active QR codes pointing to this link will stop working
+
+## Error Responses
+
+| Status | Code | Description |
+|--------|------|-------------|
+| 404 | `NOT_FOUND` | Link not found or doesn't belong to you |

@@ -1,0 +1,74 @@
+# Account Info
+
+Get your account information including email, link usage, and plan limits.
+
+```
+GET /api/v1/account
+```
+
+## Authentication
+
+Required.
+
+## Response
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | string (UUID) | Your account ID |
+| `email` | string | Account email address |
+| `link_limit` | number | Maximum links allowed |
+| `default_expiry_hours` | number \| null | Default link expiration (hours) |
+| `total_links` | number | Current number of links |
+| `total_clicks` | number | Total clicks across all links |
+| `created_at` | string | Account creation date (ISO 8601) |
+
+## Examples
+
+```bash
+curl https://snipurl.click/api/v1/account \
+  -H "Authorization: Bearer snip_live_your_key_here"
+```
+
+```javascript
+const response = await fetch('https://snipurl.click/api/v1/account', {
+  headers: { 'Authorization': 'Bearer snip_live_your_key_here' },
+});
+
+const { data } = await response.json();
+console.log(`Using ${data.total_links} of ${data.link_limit} links`);
+```
+
+```python
+import requests
+
+response = requests.get(
+    'https://snipurl.click/api/v1/account',
+    headers={'Authorization': 'Bearer snip_live_your_key_here'},
+)
+
+data = response.json()['data']
+print(f"Using {data['total_links']} of {data['link_limit']} links")
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "email": "developer@example.com",
+    "link_limit": 500,
+    "default_expiry_hours": 720,
+    "total_links": 47,
+    "total_clicks": 8934,
+    "created_at": "2025-01-15T08:30:00.000Z"
+  }
+}
+```
+
+## Use Cases
+
+- Check remaining link capacity before bulk operations
+- Display account info in your application's settings
+- Monitor overall account usage

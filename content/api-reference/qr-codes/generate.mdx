@@ -1,0 +1,139 @@
+# Generate QR Code
+
+Generate a QR code image for one of your short links. Returns a PNG or SVG image (not JSON).
+
+```
+GET /api/v1/qr/:short_code
+```
+
+## Authentication
+
+Required.
+
+## Path Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `short_code` | string | The link's short code (e.g., `a8Kx2m` or custom alias) |
+
+## Query Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `format` | string | `png` | Output format: `png` or `svg` |
+| `size` | integer | 400 | Image width in pixels (100-1000) |
+| `color` | string | `#1A1410` | Foreground color (hex, 6 digits) |
+| `bg` | string | `#FFFFFF` | Background color (hex, 6 digits, or `transparent`) |
+| `ec` | string | `M` | Error correction level: `L`, `M`, `Q`, or `H` |
+| `margin` | integer | 2 | Quiet zone size (0-4 modules) |
+
+### Error Correction Levels
+
+| Level | Recovery | Use Case |
+|-------|----------|----------|
+| `L` | ~7% | Maximum data density |
+| `M` | ~15% | Default, good balance |
+| `Q` | ~25% | Higher reliability |
+| `H` | ~30% | Best for printed QR with logos |
+
+## Response
+
+Returns the QR code image directly (not wrapped in JSON).
+
+- **PNG**: `Content-Type: image/png`
+- **SVG**: `Content-Type: image/svg+xml`
+
+The QR code encodes the full short URL (e.g., `https://snipurl.click/a8Kx2m`).
+
+## Examples
+
+### Basic PNG QR Code
+
+```bash
+curl "https://snipurl.click/api/v1/qr/a8Kx2m" \
+  -H "Authorization: Bearer snip_live_your_key_here" \
+  -o qr-code.png
+```
+
+### Custom SVG
+
+```bash
+curl "https://snipurl.click/api/v1/qr/a8Kx2m?format=svg&size=600&color=2563EB&bg=F8FAFC" \
+  -H "Authorization: Bearer snip_live_your_key_here" \
+  -o qr-code.svg
+```
+
+### Transparent Background
+
+```bash
+curl "https://snipurl.click/api/v1/qr/a8Kx2m?bg=transparent&size=500" \
+  -H "Authorization: Bearer snip_live_your_key_here" \
+  -o qr-transparent.png
+```
+
+### JavaScript — Download and Display
+
+```javascript
+const shortCode = 'a8Kx2m';
+const params = new URLSearchParams({
+  format: 'svg',
+  size: '300',
+  color: '1A1410',
+  bg: 'FFFFFF',
+});
+
+const response = await fetch(
+  `https://snipurl.click/api/v1/qr/${shortCode}?${params}`,
+  { headers: { 'Authorization': 'Bearer snip_live_your_key_here' } }
+);
+
+if (response.ok) {
+  const blob = await response.blob();
+  const imageUrl = URL.createObjectURL(blob);
+  // Use imageUrl in an <img> tag or download it
+}
+```
+
+### Python — Save to File
+
+```python
+import requests
+
+short_code = 'a8Kx2m'
+params = {
+    'format': 'png',
+    'size': 500,
+    'color': '2563EB',
+    'bg': 'FFFFFF',
+    'ec': 'H',
+}
+
+response = requests.get(
+    f'https://snipurl.click/api/v1/qr/{short_code}',
+    headers={'Authorization': 'Bearer snip_live_your_key_here'},
+    params=params,
+)
+
+with open('qr-code.png', 'wb') as f:
+    f.write(response.content)
+```
+
+## Caching
+
+QR code responses include a `Cache-Control: public, max-age=86400` header (24 hours). The QR code content doesn't change unless the link is deleted, so caching is safe.
+
+## Error Responses
+
+| Status | Code | Description |
+|--------|------|-------------|
+| 404 | `NOT_FOUND` | Link not found or doesn't belong to you |
+
+Note: Error responses are returned as JSON, even though successful responses are images.
+
+## Tips
+
+- Use **SVG** format for scalable prints and web embeds
+- Use **PNG** format for emails and messaging apps
+- Set error correction to `H` if you plan to add a logo overlay
+- Use `transparent` background for dark-themed interfaces
+- Larger sizes (600-1000px) are better for print materials

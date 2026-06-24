@@ -1,0 +1,70 @@
+# Snip URL API Documentation
+
+Welcome to the **Snip URL API** — a powerful, developer-friendly REST API for URL shortening, analytics, and QR code generation.
+
+## What is Snip URL?
+
+Snip URL is a modern URL shortener that provides:
+
+- **Short link creation** with custom aliases
+- **Click analytics** with geographic, device, and referrer data
+- **QR code generation** with full customization
+- **Password protection** and link expiration
+- **Bulk operations** for managing links at scale
+
+## API at a Glance
+
+| Feature | Details |
+|---------|---------|
+| **Base URL** | `https://snipurl.click/api/v1` |
+| **Authentication** | Bearer token (API key) |
+| **Rate Limits** | 60 requests/min, 1,000 requests/hr |
+| **Response Format** | JSON |
+| **Versioning** | URL path (`/api/v1/`) |
+
+## Quick Example
+
+Create a short link with a single API call:
+
+```bash
+curl -X POST https://snipurl.click/api/v1/links \
+  -H "Authorization: Bearer snip_live_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com/very-long-article-about-something",
+    "title": "My Article"
+  }'
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "short_code": "a8Kx2m",
+    "short_url": "https://snipurl.click/a8Kx2m",
+    "original_url": "https://example.com/very-long-article-about-something",
+    "title": "My Article",
+    "is_active": true,
+    "has_password": false,
+    "expires_at": null,
+    "clicks_count": 0,
+    "created_at": "2025-06-24T10:00:00.000Z"
+  }
+}
+```
+
+## Getting Started
+
+Ready to integrate? Follow these steps:
+
+1. [Create an API key](/getting-started/authentication) from your Snip URL dashboard
+2. [Make your first request](/getting-started) using the quick start guide
+3. [Explore endpoints](/api-reference) in the full API reference
+
+## Need Help?
+
+- **GitHub**: [github.com/mdsaad31/SnipURL](https://github.com/mdsaad31/SnipURL)
+- **Dashboard**: [snipurl.click/dashboard](https://snipurl.click/dashboard)

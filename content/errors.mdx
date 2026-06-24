@@ -1,0 +1,207 @@
+# Error Handling
+
+The Snip URL API uses conventional HTTP status codes and returns structured JSON error responses.
+
+## Error Response Format
+
+Every error response follows this structure:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable description of what went wrong",
+    "details": {}
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `code` | string | Machine-readable error code (use for programmatic handling) |
+| `message` | string | Human-readable description (safe to display to users) |
+| `details` | object | Additional context (validation errors, limits, etc.) — optional |
+
+## HTTP Status Codes
+
+| Code | Meaning | When |
+|------|---------|------|
+| `400` | Bad Request | Malformed JSON, invalid parameters |
+| `401` | Unauthorized | Missing, invalid, expired, or revoked API key |
+| `403` | Forbidden | Valid auth but insufficient permissions (e.g., link limit reached) |
+| `404` | Not Found | Resource doesn't exist or doesn't belong to you |
+| `409` | Conflict | Resource already exists (e.g., alias taken) |
+| `429` | Too Many Requests | Rate limit exceeded |
+| `500` | Internal Server Error | Unexpected server failure |
+
+## Error Codes Reference
+
+### Authentication Errors (401)
+
+| Code | Description |
+|------|-------------|
+| `UNAUTHORIZED` | Missing or invalid API key |
+| `KEY_EXPIRED` | API key has passed its expiration date |
+| `KEY_REVOKED` | API key has been revoked |
+
+### Validation Errors (400)
+
+| Code | Description |
+|------|-------------|
+| `VALIDATION_ERROR` | Request body or query parameters failed validation |
+| `BAD_REQUEST` | Generic bad request (e.g., attempting to modify immutable fields) |
+
+### Permission Errors (403)
+
+| Code | Description |
+|------|-------------|
+| `FORBIDDEN` | Link limit reached or other account-level restriction |
+
+### Resource Errors (404, 409)
+
+| Code | Description |
+|------|-------------|
+| `NOT_FOUND` | Resource not found or doesn't belong to your account |
+| `CONFLICT` | Custom alias is already taken |
+
+### Rate Limiting (429)
+
+| Code | Description |
+|------|-------------|
+| `RATE_LIMIT_EXCEEDED` | Too many requests in the current window |
+
+### Server Errors (500)
+
+| Code | Description |
+|------|-------------|
+| `INTERNAL_ERROR` | Unexpected server error |
+
+## Handling Errors in Code
+
+### JavaScript / TypeScript
+
+```javascript
+async function snipurlRequest(endpoint, options = {}) {
+  const response = await fetch(`https://snipurl.click/api/v1${endpoint}`, {
+    ...options,
+    headers: {
+      'Authorization': `Bearer ${API_KEY}`,
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+  const body = await response.json();
+
+  if (!body.success) {
+    const { code, message, details } = body.error;
+
+    switch (code) {
+      case 'UNAUTHORIZED':
+      case 'KEY_EXPIRED':
+      case 'KEY_REVOKED':
+        throw new Error(`Authentication failed: ${message}`);
+
+      case 'RATE_LIMIT_EXCEEDED':
+        const retryAfter = parseInt(response.headers.get('Retry-After') || '60');
+        await new Promise(r => setTimeout(r, retryAfter * 1000));
+        return snipurlRequest(endpoint, options); // Retry
+
+      case 'VALIDATION_ERROR':
+        console.error('Validation failed:', details);
+        throw new Error(`Invalid input: ${message}`);
+
+      case 'NOT_FOUND':
+        return null; // Resource doesn't exist
+
+      case 'CONFLICT':
+        throw new Error(`Conflict: ${message}`);
+
+      default:
+        throw new Error(`API error [${code}]: ${message}`);
+    }
+  }
+
+  return body;
+}
+```
+
+### Python
+
+```python
+import time
+import requests
+
+class SnipURLError(Exception):
+    def __init__(self, code, message, details=None, status_code=None):
+        self.code = code
+        self.message = message
+        self.details = details
+        self.status_code = status_code
+        super().__init__(f"[{code}] {message}")
+
+def snipurl_request(endpoint, method='GET', json=None, retry=True):
+    response = requests.request(
+        method,
+        f'https://snipurl.click/api/v1{endpoint}',
+        headers={
+            'Authorization': f'Bearer {API_KEY}',
+            'Content-Type': 'application/json',
+        },
+        json=json,
+    )
+
+    body = response.json()
+
+    if not body.get('success'):
+        error = body['error']
+        code = error['code']
+
+        # Auto-retry on rate limit
+        if code == 'RATE_LIMIT_EXCEEDED' and retry:
+            retry_after = int(response.headers.get('Retry-After', 60))
+            time.sleep(retry_after)
+            return snipurl_request(endpoint, method, json, retry=False)
+
+        raise SnipURLError(
+            code=code,
+            message=error['message'],
+            details=error.get('details'),
+            status_code=response.status_code,
+        )
+
+    return body
+```
+
+## Validation Error Details
+
+When you receive a `VALIDATION_ERROR`, the `details` field contains field-level error information:
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid request data.",
+    "details": {
+      "_errors": [],
+      "url": {
+        "_errors": ["Please enter a valid URL"]
+      },
+      "expires_at": {
+        "_errors": ["Invalid datetime string"]
+      }
+    }
+  }
+}
+```
+
+## Best Practices
+
+1. **Always check `success`** before accessing `data`
+2. **Handle `429` with retry logic** using the `Retry-After` header
+3. **Don't expose raw error messages** to end users in production — use them for debugging
+4. **Log `code` and `details`** for debugging validation issues
+5. **Handle `404` gracefully** — resources may have been deleted
+6. **Re-authenticate on `401`** — your key may have expired or been revoked

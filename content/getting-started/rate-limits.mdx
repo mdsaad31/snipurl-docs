@@ -1,0 +1,147 @@
+# Rate Limits
+
+The Snip URL API enforces rate limits to ensure fair usage and protect against abuse. Limits are applied **per API key**.
+
+## Current Limits
+
+| Window | Limit |
+|--------|-------|
+| Per minute | 60 requests |
+| Per hour | 1,000 requests |
+
+These limits apply across all endpoints combined. For example, if you make 40 link creation requests and 20 analytics requests within a minute, you've used all 60 of your per-minute allowance.
+
+## Rate Limit Headers
+
+Every API response includes rate limit information in the headers:
+
+```http
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 45
+X-RateLimit-Reset: 1719244860
+```
+
+| Header | Description |
+|--------|-------------|
+| `X-RateLimit-Limit` | Maximum requests allowed in the current window |
+| `X-RateLimit-Remaining` | Requests remaining in the current window |
+| `X-RateLimit-Reset` | Unix timestamp when the current window resets |
+
+## When You Hit the Limit
+
+If you exceed the rate limit, you'll receive a `429 Too Many Requests` response:
+
+```http
+HTTP/1.1 429 Too Many Requests
+Retry-After: 23
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1719244860
+```
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Rate limit exceeded. Retry after 23 seconds.",
+    "details": {
+      "limit": 60,
+      "window": "1m",
+      "retry_after": 23
+    }
+  }
+}
+```
+
+## Handling Rate Limits
+
+### Retry Strategy
+
+The best approach is to implement exponential backoff with the `Retry-After` header:
+
+```javascript
+async function fetchWithRetry(url, options, maxRetries = 3) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const response = await fetch(url, options);
+
+    if (response.status === 429) {
+      const retryAfter = parseInt(response.headers.get('Retry-After') || '60', 10);
+      console.log(`Rate limited. Retrying in ${retryAfter}s...`);
+      await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+      continue;
+    }
+
+    return response;
+  }
+
+  throw new Error('Max retries exceeded');
+}
+```
+
+### Python Example
+
+```python
+import time
+import requests
+
+def fetch_with_retry(url, headers, max_retries=3):
+    for attempt in range(max_retries + 1):
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 429:
+            retry_after = int(response.headers.get('Retry-After', 60))
+            print(f'Rate limited. Retrying in {retry_after}s...')
+            time.sleep(retry_after)
+            continue
+
+        return response
+
+    raise Exception('Max retries exceeded')
+```
+
+## Best Practices
+
+### Minimize Requests
+
+- **Use bulk endpoints**: Create up to 50 links in a single request with `POST /api/v1/links/bulk`
+- **Cache responses**: Cache analytics data and link lists when possible
+- **Use pagination efficiently**: Fetch larger pages (up to 100) instead of making many small requests
+
+### Monitor Your Usage
+
+Check your current rate limit status at any time:
+
+```bash
+curl https://snipurl.click/api/v1/account/usage \
+  -H "Authorization: Bearer snip_live_your_key_here"
+```
+
+### Spread Requests
+
+If you need to make many requests, spread them evenly over time rather than bursting:
+
+```javascript
+// Bad: 100 requests as fast as possible
+for (const url of urls) {
+  await createLink(url); // Will hit rate limit after 60
+}
+
+// Good: Spread over time with delays
+for (const url of urls) {
+  await createLink(url);
+  await new Promise(r => setTimeout(r, 1100)); // ~54 req/min, stays under limit
+}
+```
+
+### Use Multiple Keys
+
+If you have multiple independent services, use a separate API key for each. Rate limits are per-key, so this effectively multiplies your available throughput:
+
+- `Production App` key → 60 req/min
+- `Analytics Service` key → 60 req/min
+- `CI/CD Pipeline` key → 60 req/min
+
+## Future Plans
+
+Higher rate limits will be available through paid plans in the future. The current free tier limits are designed to support most development and moderate production workloads.

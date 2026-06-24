@@ -1,0 +1,239 @@
+# SDKs & Libraries
+
+Official SDKs are planned for a future release. In the meantime, the API is straightforward to integrate using standard HTTP libraries in any language.
+
+## Community Libraries
+
+No community libraries exist yet. If you build one, [let us know](https://github.com/mdsaad31/SnipURL/issues) and we'll list it here!
+
+## Roll Your Own
+
+The Snip URL API is a standard REST API. Here are minimal client examples you can copy into your project:
+
+### JavaScript / TypeScript
+
+```javascript
+class SnipURL {
+  constructor(apiKey) {
+    this.apiKey = apiKey;
+    this.baseUrl = 'https://snipurl.click/api/v1';
+  }
+
+  async request(endpoint, options = {}) {
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      ...options,
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      body: options.body ? JSON.stringify(options.body) : undefined,
+    });
+
+    if (response.status === 429) {
+      const retryAfter = parseInt(response.headers.get('Retry-After') || '60');
+      await new Promise(r => setTimeout(r, retryAfter * 1000));
+      return this.request(endpoint, options);
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.error?.message || 'API request failed');
+    }
+    return data;
+  }
+
+  // Links
+  async createLink(url, options = {}) {
+    return this.request('/links', {
+      method: 'POST',
+      body: { url, ...options },
+    });
+  }
+
+  async listLinks(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return this.request(`/links${query ? `?${query}` : ''}`);
+  }
+
+  async getLink(id) {
+    return this.request(`/links/${id}`);
+  }
+
+  async updateLink(id, updates) {
+    return this.request(`/links/${id}`, {
+      method: 'PATCH',
+      body: updates,
+    });
+  }
+
+  async deleteLink(id) {
+    return this.request(`/links/${id}`, { method: 'DELETE' });
+  }
+
+  // Analytics
+  async getAnalytics(linkId, params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return this.request(`/analytics/${linkId}${query ? `?${query}` : ''}`);
+  }
+
+  async getSummary(params = {}) {
+    const query = new URLSearchParams(params).toString();
+    return this.request(`/analytics/summary${query ? `?${query}` : ''}`);
+  }
+
+  // Account
+  async getAccount() {
+    return this.request('/account');
+  }
+}
+
+// Usage
+const snip = new SnipURL('snip_live_your_key_here');
+const { data } = await snip.createLink('https://example.com', {
+  custom_alias: 'my-link',
+  title: 'My Link',
+});
+console.log(data.short_url);
+```
+
+### Python
+
+```python
+import requests
+import time
+
+class SnipURL:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.base_url = 'https://snipurl.click/api/v1'
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json',
+        })
+
+    def _request(self, method, endpoint, json=None, params=None):
+        response = self.session.request(
+            method,
+            f'{self.base_url}{endpoint}',
+            json=json,
+            params=params,
+        )
+
+        if response.status_code == 429:
+            retry_after = int(response.headers.get('Retry-After', 60))
+            time.sleep(retry_after)
+            return self._request(method, endpoint, json=json, params=params)
+
+        data = response.json()
+        if not data.get('success'):
+            error = data.get('error', {})
+            raise Exception(f"[{error.get('code')}] {error.get('message')}")
+
+        return data
+
+    # Links
+    def create_link(self, url, **kwargs):
+        return self._request('POST', '/links', json={'url': url, **kwargs})
+
+    def list_links(self, **params):
+        return self._request('GET', '/links', params=params)
+
+    def get_link(self, link_id):
+        return self._request('GET', f'/links/{link_id}')
+
+    def update_link(self, link_id, **updates):
+        return self._request('PATCH', f'/links/{link_id}', json=updates)
+
+    def delete_link(self, link_id):
+        return self._request('DELETE', f'/links/{link_id}')
+
+    # Analytics
+    def get_analytics(self, link_id, **params):
+        return self._request('GET', f'/analytics/{link_id}', params=params)
+
+    def get_summary(self, **params):
+        return self._request('GET', '/analytics/summary', params=params)
+
+    # Account
+    def get_account(self):
+        return self._request('GET', '/account')
+
+
+# Usage
+snip = SnipURL('snip_live_your_key_here')
+result = snip.create_link(
+    'https://example.com',
+    custom_alias='my-link',
+    title='My Link',
+)
+print(result['data']['short_url'])
+```
+
+### Go
+
+```go
+package snipurl
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "net/http"
+)
+
+type Client struct {
+    APIKey  string
+    BaseURL string
+    HTTP    *http.Client
+}
+
+func NewClient(apiKey string) *Client {
+    return &Client{
+        APIKey:  apiKey,
+        BaseURL: "https://snipurl.click/api/v1",
+        HTTP:    &http.Client{},
+    }
+}
+
+func (c *Client) Request(method, endpoint string, body interface{}) (map[string]interface{}, error) {
+    var reqBody *bytes.Buffer
+    if body != nil {
+        b, _ := json.Marshal(body)
+        reqBody = bytes.NewBuffer(b)
+    } else {
+        reqBody = &bytes.Buffer{}
+    }
+
+    req, _ := http.NewRequest(method, c.BaseURL+endpoint, reqBody)
+    req.Header.Set("Authorization", "Bearer "+c.APIKey)
+    req.Header.Set("Content-Type", "application/json")
+
+    resp, err := c.HTTP.Do(req)
+    if err != nil {
+        return nil, err
+    }
+    defer resp.Body.Close()
+
+    var result map[string]interface{}
+    json.NewDecoder(resp.Body).Decode(&result)
+
+    if success, ok := result["success"].(bool); !ok || !success {
+        errObj := result["error"].(map[string]interface{})
+        return nil, fmt.Errorf("[%s] %s", errObj["code"], errObj["message"])
+    }
+
+    return result, nil
+}
+```
+
+## Planned Official SDKs
+
+We plan to release official SDKs for:
+
+- **JavaScript/TypeScript** (npm package)
+- **Python** (pip package)
+- **Go** (Go module)
+
+Follow our [GitHub repository](https://github.com/mdsaad31/SnipURL) for updates on SDK releases.

@@ -1,0 +1,97 @@
+# Bulk Delete Links
+
+Delete multiple links in a single request. Supports up to 50 links per call.
+
+```
+DELETE /api/v1/links/bulk
+```
+
+## Authentication
+
+Required.
+
+## Request Body
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `ids` | string[] | Yes | Array of link UUIDs to delete (1-50 items) |
+
+## Response
+
+Returns the count of successfully deleted links.
+
+## Examples
+
+```bash
+curl -X DELETE https://snipurl.click/api/v1/links/bulk \
+  -H "Authorization: Bearer snip_live_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ids": [
+      "550e8400-e29b-41d4-a716-446655440000",
+      "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+      "a87ff679-a2f3-e710-ab34-946655440001"
+    ]
+  }'
+```
+
+```javascript
+const idsToDelete = [
+  '550e8400-e29b-41d4-a716-446655440000',
+  '7c9e6679-7425-40de-944b-e07fc1f90ae7',
+];
+
+const response = await fetch('https://snipurl.click/api/v1/links/bulk', {
+  method: 'DELETE',
+  headers: {
+    'Authorization': 'Bearer snip_live_your_key_here',
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ ids: idsToDelete }),
+});
+
+const { data } = await response.json();
+console.log(`Deleted ${data.deleted} links`);
+```
+
+```python
+import requests
+
+ids_to_delete = [
+    '550e8400-e29b-41d4-a716-446655440000',
+    '7c9e6679-7425-40de-944b-e07fc1f90ae7',
+]
+
+response = requests.delete(
+    'https://snipurl.click/api/v1/links/bulk',
+    headers={'Authorization': 'Bearer snip_live_your_key_here'},
+    json={'ids': ids_to_delete},
+)
+
+data = response.json()['data']
+print(f"Deleted {data['deleted']} links")
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "deleted": 3
+  }
+}
+```
+
+## Notes
+
+- IDs that don't exist or don't belong to you are silently skipped
+- The `deleted` count reflects how many were actually removed
+- All associated click data is deleted with the links (cascade)
+- This action is **irreversible**
+
+## Error Responses
+
+| Status | Code | Description |
+|--------|------|-------------|
+| 400 | `VALIDATION_ERROR` | Invalid IDs or exceeds 50 items |
