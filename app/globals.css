@@ -1,32 +1,21 @@
 /* ══════════════════════════════════════════════════════════════
-   Snip URL Docs — Custom Overrides for Nextra 4 Theme
+   Snip URL Docs — Overrides for Nextra 4
+   Note: Nextra's <Head> injects inline :root styles, so we
+   need !important or higher specificity to override them.
    ══════════════════════════════════════════════════════════════ */
 
-/* ─── Brand Colors ────────────────────────────────────────── */
+/* ─── Override Nextra's inline :root variables ────────────── */
 :root {
-  --snip-primary: #C17A2E;
-  --snip-primary-hover: #9E6222;
-  --snip-bg: #FDFAF5;
-  --snip-surface: #FFFFFF;
-  --snip-border: #E8E2D9;
-  --snip-text: #1A1410;
-  --snip-text-secondary: #6B5E52;
+  --nextra-content-width: 76rem !important;
+  --nextra-primary-hue: 30deg !important;
+  --nextra-primary-saturation: 63% !important;
+  --nextra-primary-lightness: 47% !important;
 }
 
-/* ─── Nextra Theme Primary Color Override ─────────────────── */
-html[class~="dark"] {
-  --nextra-primary-hue: 30deg;
-  --nextra-primary-saturation: 63%;
-}
-
-html:not([class~="dark"]) {
-  --nextra-primary-hue: 30deg;
-  --nextra-primary-saturation: 63%;
-}
-
-/* ─── Content Width — tighter than default 90rem ──────────── */
-:root {
-  --nextra-content-width: 76rem;
+.dark {
+  --nextra-primary-hue: 30deg !important;
+  --nextra-primary-saturation: 63% !important;
+  --nextra-primary-lightness: 55% !important;
 }
 
 /* ─── Logo ────────────────────────────────────────────────── */
@@ -68,7 +57,7 @@ html:not([class~="dark"]) {
 }
 
 .snip-footer a {
-  color: var(--snip-primary);
+  color: hsl(30deg 63% 47%);
   text-decoration: none;
   font-weight: 500;
 }
@@ -78,49 +67,51 @@ html:not([class~="dark"]) {
 }
 
 .snip-footer-sep {
-  color: var(--snip-border);
+  color: #E8E2D9;
 }
 
-/* ─── Typography ──────────────────────────────────────────── */
-article h1 {
-  font-size: 2rem !important;
-  line-height: 1.2 !important;
-  letter-spacing: -0.02em;
+/* ─── Prevent horizontal overflow everywhere ──────────────── */
+html,
+body {
+  overflow-x: hidden !important;
+  max-width: 100vw;
 }
 
-article h2 {
-  font-size: 1.5rem !important;
-  margin-top: 2.5rem !important;
-}
-
-article h3 {
-  font-size: 1.2rem !important;
+/* ─── Content area — prevent wide elements from breaking ──── */
+article {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
 }
 
 /* ─── Code Blocks ─────────────────────────────────────────── */
 pre {
   font-size: 13px !important;
   line-height: 1.7 !important;
-  border-radius: 10px !important;
+  border-radius: 8px !important;
+  overflow-x: auto !important;
+  max-width: 100% !important;
 }
 
 pre code {
   font-size: 13px !important;
+  white-space: pre !important;
 }
 
 /* Inline code */
 :not(pre) > code {
-  padding: 2px 7px !important;
+  padding: 2px 6px !important;
   font-size: 0.85em !important;
-  border-radius: 5px !important;
-  font-weight: 500;
+  border-radius: 4px !important;
 }
 
-/* ─── Tables ──────────────────────────────────────────────── */
+/* ─── Tables — always scrollable ──────────────────────────── */
 table {
   font-size: 14px;
-  display: table;
-  width: 100%;
+  display: block !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100% !important;
 }
 
 th {
@@ -133,14 +124,46 @@ td {
   vertical-align: top;
 }
 
-/* Make table scroll on mobile */
-.nextra-scrollbar {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+/* ─── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Tighter article padding */
+  article {
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+  }
+
+  /* Code blocks: full width */
+  article pre {
+    margin-left: -0.75rem !important;
+    margin-right: -0.75rem !important;
+    border-radius: 0 !important;
+    padding: 1rem 0.75rem !important;
+  }
+
+  /* Headings */
+  article h1 {
+    font-size: 1.5rem !important;
+  }
+
+  article h2 {
+    font-size: 1.25rem !important;
+  }
+
+  /* TOC nav (right side) - hide fully on mobile */
+  nav[aria-label="table of contents"] {
+    display: none !important;
+  }
 }
 
-/* ─── Sidebar ─────────────────────────────────────────────── */
-/* Nicer scrollbar */
+/* ─── Tablet (md-xl): sidebar is shown, tighten spacing ──── */
+@media (min-width: 768px) and (max-width: 1279px) {
+  /* Hide TOC on tablet to give more room to content */
+  nav[aria-label="table of contents"] {
+    display: none !important;
+  }
+}
+
+/* ─── Sidebar scrollbar ───────────────────────────────────── */
 .nextra-sidebar::-webkit-scrollbar {
   width: 4px;
 }
@@ -158,84 +181,13 @@ td {
   background: #333;
 }
 
-/* ─── Mobile Responsive Fixes ─────────────────────────────── */
-@media (max-width: 768px) {
-  /* Article content padding */
-  article {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
-
-  /* Code blocks go edge-to-edge */
-  article pre {
-    margin-left: -1rem !important;
-    margin-right: -1rem !important;
-    border-radius: 0 !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
-
-  /* Tables become scrollable containers */
-  article table {
-    display: block;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
-  }
-
-  /* Headings smaller on mobile */
-  article h1 {
-    font-size: 1.6rem !important;
-  }
-
-  article h2 {
-    font-size: 1.3rem !important;
-  }
-
-  /* Callout/blockquote */
-  article blockquote,
-  article .nextra-callout {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-
-  /* Steps component */
-  article .nextra-steps {
-    padding-left: 1rem !important;
-  }
-}
-
-/* ─── Callout Styling ─────────────────────────────────────── */
+/* ─── Callout ─────────────────────────────────────────────── */
 .nextra-callout {
-  border-radius: 10px !important;
-}
-
-/* ─── Navbar ──────────────────────────────────────────────── */
-nav[class*="nextra"] a[href*="github"] {
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-nav[class*="nextra"] a[href*="github"]:hover {
-  opacity: 1;
-}
-
-/* ─── Page Layout — ensure body doesn't overflow ──────────── */
-html {
-  overflow-x: hidden;
-}
-
-body {
-  overflow-x: hidden;
-  min-height: 100vh;
+  border-radius: 8px !important;
+  overflow: hidden;
 }
 
 /* ─── Dark Mode Tweaks ────────────────────────────────────── */
 .dark pre {
-  background: #0d0d0d !important;
-  border: 1px solid #222 !important;
-}
-
-.dark article {
-  color: #e0e0e0;
+  border: 1px solid #262626 !important;
 }
