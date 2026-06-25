@@ -49,8 +49,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <Head>
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
         <meta name="theme-color" content="#C17A2E" />
       </Head>
       <body>
@@ -66,6 +64,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           docsRepositoryBase="https://github.com/mdsaad31/snipurl-docs/tree/master/content"
           editLink="Edit this page on GitHub"
           pageMap={await getPageMap()}
+          search={null}
         >
           {children}
         </Layout>
