@@ -1,0 +1,121 @@
+:root {
+  --snip-primary: #C17A2E;
+  --snip-primary-hover: #9E6222;
+  --snip-bg: #FDFAF5;
+  --snip-surface: #FFFFFF;
+  --snip-border: #E8E2D9;
+  --snip-text: #1A1410;
+  --snip-text-secondary: #6B5E52;
+}
+
+/* Logo styling */
+.snip-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.snip-logo-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #C17A2E, #D4943E);
+  color: white;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+
+/* Footer styling */
+.snip-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.snip-footer a {
+  color: var(--snip-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.snip-footer a:hover {
+  text-decoration: underline;
+}
+
+.snip-footer-sep {
+  color: var(--snip-border);
+}
+
+/* Override Nextra theme colors to match Snip brand */
+html[class~="dark"] {
+  --nextra-primary-hue: 30;
+  --nextra-primary-saturation: 63%;
+}
+
+html:not([class~="dark"]) {
+  --nextra-primary-hue: 30;
+  --nextra-primary-saturation: 63%;
+}
+
+/* Better code block styling */
+pre code {
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+}
+
+/* Responsive improvements */
+@media (max-width: 767px) {
+  .nextra-sidebar-container {
+    width: 100% !important;
+  }
+
+  article {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  pre {
+    margin-left: -1rem !important;
+    margin-right: -1rem !important;
+    border-radius: 0 !important;
+  }
+}
+
+/* Smooth scrollbar for sidebar */
+.nextra-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.nextra-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nextra-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--snip-border);
+  border-radius: 4px;
+}
+
+/* Better table styling */
+table {
+  font-size: 14px;
+}
+
+th {
+  font-weight: 600 !important;
+  white-space: nowrap;
+}
+
+/* Better inline code */
+:not(pre) > code {
+  padding: 2px 6px !important;
+  font-size: 13px !important;
+  border-radius: 4px !important;
+}

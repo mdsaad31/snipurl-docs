@@ -1,70 +1,94 @@
-# Snip URL API Documentation
+---
+title: Snip URL API Documentation
+description: Complete developer documentation for creating short links, tracking analytics, generating QR codes, and managing your account programmatically.
+---
 
-Welcome to the **Snip URL API** — a powerful, developer-friendly REST API for URL shortening, analytics, and QR code generation.
+import { Callout, Steps } from 'nextra/components'
 
-## What is Snip URL?
+# Snip URL API
 
-Snip URL is a modern URL shortener that provides:
+Build powerful integrations with the Snip URL platform. Create short links, track analytics, generate QR codes, and manage your account — all programmatically.
 
-- **Short link creation** with custom aliases
-- **Click analytics** with geographic, device, and referrer data
-- **QR code generation** with full customization
-- **Password protection** and link expiration
-- **Bulk operations** for managing links at scale
-
-## API at a Glance
-
-| Feature | Details |
-|---------|---------|
-| **Base URL** | `https://snipurl.click/api/v1` |
-| **Authentication** | Bearer token (API key) |
-| **Rate Limits** | 60 requests/min, 1,000 requests/hr |
-| **Response Format** | JSON |
-| **Versioning** | URL path (`/api/v1/`) |
+<Callout type="info">
+  **Base URL:** `https://snipurl.click/api/v1`  
+  **Authentication:** Bearer token (API key)  
+  **Rate Limits:** 60 req/min · 1,000 req/hr per key
+</Callout>
 
 ## Quick Example
-
-Create a short link with a single API call:
 
 ```bash
 curl -X POST https://snipurl.click/api/v1/links \
   -H "Authorization: Bearer snip_live_your_key_here" \
   -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://example.com/very-long-article-about-something",
-    "title": "My Article"
-  }'
+  -d '{"url": "https://example.com/very/long/path"}'
 ```
 
-Response:
+**Response:**
 
 ```json
 {
   "success": true,
   "data": {
     "id": "550e8400-e29b-41d4-a716-446655440000",
-    "short_code": "a8Kx2m",
-    "short_url": "https://snipurl.click/a8Kx2m",
-    "original_url": "https://example.com/very-long-article-about-something",
-    "title": "My Article",
-    "is_active": true,
-    "has_password": false,
-    "expires_at": null,
-    "clicks_count": 0,
-    "created_at": "2025-06-24T10:00:00.000Z"
+    "short_code": "abc123",
+    "short_url": "https://snipurl.click/abc123",
+    "original_url": "https://example.com/very/long/path",
+    "created_at": "2024-01-15T10:30:00Z"
   }
 }
 ```
 
+## What You Can Build
+
+| Category | Description | Endpoints |
+|----------|-------------|-----------|
+| **[Link Management](/api-reference/links/create)** | Create, update, delete, and list short links with custom aliases, passwords, and expiration | 7 endpoints |
+| **[Click Analytics](/api-reference/analytics/link-stats)** | Track clicks with breakdowns by country, device, browser, OS, and referrer | 2 endpoints |
+| **[QR Codes](/api-reference/qr-codes/generate)** | Generate customizable QR codes in PNG or SVG with custom colors and sizes | 1 endpoint |
+| **[Account](/api-reference/account/info)** | Monitor API usage, check limits, and view account details | 2 endpoints |
+
 ## Getting Started
 
-Ready to integrate? Follow these steps:
+<Steps>
+### Get your API key
 
-1. [Create an API key](/getting-started/authentication) from your Snip URL dashboard
-2. [Make your first request](/getting-started) using the quick start guide
-3. [Explore endpoints](/api-reference) in the full API reference
+Sign in to the [Snip URL dashboard](https://snipurl.click/dashboard/api-keys) and create an API key. You can have up to 10 keys per account.
 
-## Need Help?
+### Make your first request
 
-- **GitHub**: [github.com/mdsaad31/SnipURL](https://github.com/mdsaad31/SnipURL)
-- **Dashboard**: [snipurl.click/dashboard](https://snipurl.click/dashboard)
+Include your API key as a Bearer token in the `Authorization` header of every request:
+
+```bash
+Authorization: Bearer snip_live_aBcDeFgHiJkLmNoPqRsTuVwXyZ012345
+```
+
+### Explore the full API
+
+Browse the [complete API reference](/api-reference) for all available endpoints, parameters, and response schemas.
+</Steps>
+
+## All Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| [`/links`](/api-reference/links/create) | `POST` | Create a short link |
+| [`/links`](/api-reference/links/list) | `GET` | List all your links |
+| [`/links/:id`](/api-reference/links/get) | `GET` | Get link details |
+| [`/links/:id`](/api-reference/links/update) | `PATCH` | Update a link |
+| [`/links/:id`](/api-reference/links/delete) | `DELETE` | Delete a link |
+| [`/links/bulk`](/api-reference/links/bulk-create) | `POST` | Create up to 50 links |
+| [`/links/bulk`](/api-reference/links/bulk-delete) | `DELETE` | Delete multiple links |
+| [`/analytics/:id`](/api-reference/analytics/link-stats) | `GET` | Get link click analytics |
+| [`/analytics/summary`](/api-reference/analytics/summary) | `GET` | Account-wide analytics |
+| [`/qr/:code`](/api-reference/qr-codes/generate) | `GET` | Generate QR code |
+| [`/account`](/api-reference/account/info) | `GET` | Get account info |
+| [`/account/usage`](/api-reference/account/usage) | `GET` | Get API usage stats |
+
+## Resources
+
+- **[Authentication Guide](/getting-started/authentication)** — How to create and use API keys
+- **[Rate Limiting](/getting-started/rate-limits)** — Understanding limits and retry strategies
+- **[Error Handling](/errors)** — Error codes and how to handle them
+- **[SDKs & Libraries](/sdks)** — Client libraries for JavaScript, Python, and Go
+- **[Changelog](/changelog)** — API version history and updates
