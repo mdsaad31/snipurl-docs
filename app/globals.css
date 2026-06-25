@@ -1,3 +1,8 @@
+/* ══════════════════════════════════════════════════════════════
+   Snip URL Docs — Custom Overrides for Nextra 4 Theme
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── Brand Colors ────────────────────────────────────────── */
 :root {
   --snip-primary: #C17A2E;
   --snip-primary-hover: #9E6222;
@@ -8,7 +13,23 @@
   --snip-text-secondary: #6B5E52;
 }
 
-/* Logo styling */
+/* ─── Nextra Theme Primary Color Override ─────────────────── */
+html[class~="dark"] {
+  --nextra-primary-hue: 30deg;
+  --nextra-primary-saturation: 63%;
+}
+
+html:not([class~="dark"]) {
+  --nextra-primary-hue: 30deg;
+  --nextra-primary-saturation: 63%;
+}
+
+/* ─── Content Width — tighter than default 90rem ──────────── */
+:root {
+  --nextra-content-width: 76rem;
+}
+
+/* ─── Logo ────────────────────────────────────────────────── */
 .snip-logo {
   display: flex;
   align-items: center;
@@ -16,12 +37,17 @@
   font-weight: 700;
   font-size: 15px;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.snip-logo svg {
+  flex-shrink: 0;
 }
 
 .snip-logo-badge {
   display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
+  padding: 2px 6px;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -29,15 +55,16 @@
   background: linear-gradient(135deg, #C17A2E, #D4943E);
   color: white;
   border-radius: 4px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
-/* Footer styling */
+/* ─── Footer ──────────────────────────────────────────────── */
 .snip-footer {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 13px;
+  flex-wrap: wrap;
 }
 
 .snip-footer a {
@@ -54,68 +81,161 @@
   color: var(--snip-border);
 }
 
-/* Override Nextra theme colors to match Snip brand */
-html[class~="dark"] {
-  --nextra-primary-hue: 30;
-  --nextra-primary-saturation: 63%;
+/* ─── Typography ──────────────────────────────────────────── */
+article h1 {
+  font-size: 2rem !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.02em;
 }
 
-html:not([class~="dark"]) {
-  --nextra-primary-hue: 30;
-  --nextra-primary-saturation: 63%;
+article h2 {
+  font-size: 1.5rem !important;
+  margin-top: 2.5rem !important;
 }
 
-/* Better code block styling */
-pre code {
+article h3 {
+  font-size: 1.2rem !important;
+}
+
+/* ─── Code Blocks ─────────────────────────────────────────── */
+pre {
   font-size: 13px !important;
   line-height: 1.7 !important;
+  border-radius: 10px !important;
 }
 
-/* Responsive improvements */
-@media (max-width: 767px) {
-  .nextra-sidebar-container {
-    width: 100% !important;
-  }
-
-  article {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
-
-  pre {
-    margin-left: -1rem !important;
-    margin-right: -1rem !important;
-    border-radius: 0 !important;
-  }
+pre code {
+  font-size: 13px !important;
 }
 
-/* Smooth scrollbar for sidebar */
-.nextra-scrollbar::-webkit-scrollbar {
-  width: 4px;
+/* Inline code */
+:not(pre) > code {
+  padding: 2px 7px !important;
+  font-size: 0.85em !important;
+  border-radius: 5px !important;
+  font-weight: 500;
 }
 
-.nextra-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.nextra-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--snip-border);
-  border-radius: 4px;
-}
-
-/* Better table styling */
+/* ─── Tables ──────────────────────────────────────────────── */
 table {
   font-size: 14px;
+  display: table;
+  width: 100%;
 }
 
 th {
   font-weight: 600 !important;
   white-space: nowrap;
+  font-size: 13px;
 }
 
-/* Better inline code */
-:not(pre) > code {
-  padding: 2px 6px !important;
-  font-size: 13px !important;
-  border-radius: 4px !important;
+td {
+  vertical-align: top;
+}
+
+/* Make table scroll on mobile */
+.nextra-scrollbar {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─── Sidebar ─────────────────────────────────────────────── */
+/* Nicer scrollbar */
+.nextra-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.nextra-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nextra-sidebar::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
+
+.dark .nextra-sidebar::-webkit-scrollbar-thumb {
+  background: #333;
+}
+
+/* ─── Mobile Responsive Fixes ─────────────────────────────── */
+@media (max-width: 768px) {
+  /* Article content padding */
+  article {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Code blocks go edge-to-edge */
+  article pre {
+    margin-left: -1rem !important;
+    margin-right: -1rem !important;
+    border-radius: 0 !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Tables become scrollable containers */
+  article table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  /* Headings smaller on mobile */
+  article h1 {
+    font-size: 1.6rem !important;
+  }
+
+  article h2 {
+    font-size: 1.3rem !important;
+  }
+
+  /* Callout/blockquote */
+  article blockquote,
+  article .nextra-callout {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  /* Steps component */
+  article .nextra-steps {
+    padding-left: 1rem !important;
+  }
+}
+
+/* ─── Callout Styling ─────────────────────────────────────── */
+.nextra-callout {
+  border-radius: 10px !important;
+}
+
+/* ─── Navbar ──────────────────────────────────────────────── */
+nav[class*="nextra"] a[href*="github"] {
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+nav[class*="nextra"] a[href*="github"]:hover {
+  opacity: 1;
+}
+
+/* ─── Page Layout — ensure body doesn't overflow ──────────── */
+html {
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ─── Dark Mode Tweaks ────────────────────────────────────── */
+.dark pre {
+  background: #0d0d0d !important;
+  border: 1px solid #222 !important;
+}
+
+.dark article {
+  color: #e0e0e0;
 }
