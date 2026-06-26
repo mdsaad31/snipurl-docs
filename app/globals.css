@@ -1,21 +1,20 @@
 /* ══════════════════════════════════════════════════════════════
-   Snip URL Docs — Overrides for Nextra 4
-   Note: Nextra's <Head> injects inline :root styles, so we
-   need !important or higher specificity to override them.
+   Snip URL Docs — Minimal Clean Styles
    ══════════════════════════════════════════════════════════════ */
 
-/* ─── Override Nextra's inline :root variables ────────────── */
+/* ─── Brand Colors ────────────────────────────────────────── */
 :root {
-  --nextra-content-width: 76rem !important;
+  --snip-primary: hsl(30deg 63% 47%);
+  --snip-primary-hover: hsl(30deg 70% 40%);
+  --snip-primary-light: hsl(30deg 40% 95%);
   --nextra-primary-hue: 30deg !important;
   --nextra-primary-saturation: 63% !important;
-  --nextra-primary-lightness: 47% !important;
 }
 
 .dark {
-  --nextra-primary-hue: 30deg !important;
-  --nextra-primary-saturation: 63% !important;
-  --nextra-primary-lightness: 55% !important;
+  --snip-primary: hsl(30deg 63% 55%);
+  --snip-primary-hover: hsl(30deg 70% 65%);
+  --snip-primary-light: hsl(30deg 10% 15%);
 }
 
 /* ─── Logo ────────────────────────────────────────────────── */
@@ -25,12 +24,12 @@
   gap: 8px;
   font-weight: 700;
   font-size: 15px;
-  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
 .snip-logo svg {
   flex-shrink: 0;
+  color: var(--snip-primary);
 }
 
 .snip-logo-badge {
@@ -44,103 +43,118 @@
   background: linear-gradient(135deg, #C17A2E, #D4943E);
   color: white;
   border-radius: 4px;
-  line-height: 1.5;
 }
 
 /* ─── Footer ──────────────────────────────────────────────── */
 .snip-footer {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   font-size: 13px;
   flex-wrap: wrap;
+  padding: 1.5rem 1rem;
 }
 
 .snip-footer a {
-  color: hsl(30deg 63% 47%);
+  color: var(--snip-primary);
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.2s;
 }
 
 .snip-footer a:hover {
   text-decoration: underline;
+  color: var(--snip-primary-hover);
 }
 
 .snip-footer-sep {
-  color: #E8E2D9;
+  opacity: 0.4;
 }
 
-/* ─── Prevent horizontal overflow everywhere ──────────────── */
-html,
-body {
-  overflow-x: hidden !important;
-  max-width: 100vw;
+/* ─── Content Styling ─────────────────────────────────────── */
+article a {
+  color: var(--snip-primary);
+  transition: color 0.2s;
 }
 
-/* ─── Content area — prevent wide elements from breaking ──── */
-article {
-  overflow-wrap: break-word;
-  word-break: break-word;
-  min-width: 0;
+article a:hover {
+  color: var(--snip-primary-hover);
 }
 
-/* ─── Code Blocks ─────────────────────────────────────────── */
-pre {
-  font-size: 13px !important;
-  line-height: 1.7 !important;
-  border-radius: 8px !important;
-  overflow-x: auto !important;
-  max-width: 100% !important;
-}
-
-pre code {
-  font-size: 13px !important;
-  white-space: pre !important;
-}
-
-/* Inline code */
 :not(pre) > code {
-  padding: 2px 6px !important;
-  font-size: 0.85em !important;
+  background: var(--snip-primary-light) !important;
+  color: var(--snip-primary) !important;
+  padding: 3px 6px !important;
   border-radius: 4px !important;
+  font-size: 0.875em !important;
 }
 
-/* ─── Tables — always scrollable ──────────────────────────── */
-table {
-  font-size: 14px;
-  display: block !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch;
-  max-width: 100% !important;
+pre {
+  border-radius: 8px !important;
+  margin: 1.5rem 0 !important;
 }
 
-th {
-  font-weight: 600 !important;
-  white-space: nowrap;
-  font-size: 13px;
+thead {
+  background: rgba(193, 122, 46, 0.05);
 }
 
-td {
-  vertical-align: top;
+.dark thead {
+  background: rgba(193, 122, 46, 0.1);
 }
 
-/* ─── Mobile ──────────────────────────────────────────────── */
+/* ─── Mobile (< 768px) ────────────────────────────────────── */
 @media (max-width: 767px) {
-  /* Tighter article padding */
-  article {
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
+  .snip-logo {
+    font-size: 14px;
+    gap: 6px;
   }
 
-  /* Code blocks: full width */
+  .snip-logo svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .snip-logo-badge {
+    font-size: 9px;
+    padding: 2px 5px;
+  }
+
+  article h1 {
+    font-size: 1.75rem !important;
+  }
+
+  article h2 {
+    font-size: 1.4rem !important;
+  }
+
   article pre {
-    margin-left: -0.75rem !important;
-    margin-right: -0.75rem !important;
+    margin-left: -1rem !important;
+    margin-right: -1rem !important;
     border-radius: 0 !important;
-    padding: 1rem 0.75rem !important;
   }
 
-  /* Headings */
+  .snip-footer {
+    font-size: 12px;
+    padding: 1rem;
+  }
+}
+
+/* ─── Small Mobile (< 480px) ──────────────────────────────── */
+@media (max-width: 479px) {
+  .snip-logo {
+    font-size: 13px;
+  }
+
+  .snip-logo svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .snip-logo-badge {
+    font-size: 8px;
+  }
+
   article h1 {
     font-size: 1.5rem !important;
   }
@@ -148,46 +162,4 @@ td {
   article h2 {
     font-size: 1.25rem !important;
   }
-
-  /* TOC nav (right side) - hide fully on mobile */
-  nav[aria-label="table of contents"] {
-    display: none !important;
-  }
-}
-
-/* ─── Tablet (md-xl): sidebar is shown, tighten spacing ──── */
-@media (min-width: 768px) and (max-width: 1279px) {
-  /* Hide TOC on tablet to give more room to content */
-  nav[aria-label="table of contents"] {
-    display: none !important;
-  }
-}
-
-/* ─── Sidebar scrollbar ───────────────────────────────────── */
-.nextra-sidebar::-webkit-scrollbar {
-  width: 4px;
-}
-
-.nextra-sidebar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.nextra-sidebar::-webkit-scrollbar-thumb {
-  background: #ddd;
-  border-radius: 4px;
-}
-
-.dark .nextra-sidebar::-webkit-scrollbar-thumb {
-  background: #333;
-}
-
-/* ─── Callout ─────────────────────────────────────────────── */
-.nextra-callout {
-  border-radius: 8px !important;
-  overflow: hidden;
-}
-
-/* ─── Dark Mode Tweaks ────────────────────────────────────── */
-.dark pre {
-  border: 1px solid #262626 !important;
 }

@@ -64,7 +64,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           docsRepositoryBase="https://github.com/mdsaad31/snipurl-docs/tree/master/content"
           editLink="Edit this page on GitHub"
           pageMap={await getPageMap()}
-          search={null}
         >
           {children}
         </Layout>
